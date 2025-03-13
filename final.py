@@ -738,11 +738,10 @@ def create_dashboard(df):
                                       (df_filtered['Date Posted'].dt.date <= end_date)]
     
     # Create tabs for different analysis views
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📊 Overview", 
         "🧠 Skills Analysis", 
-        "📂 Job Categories", 
-        "🏢 Company Comparison", 
+        "📂 Job Categories",  
         "💰 Compensation & Benefits",
         "📋 Job Details"
     ])
@@ -757,12 +756,9 @@ def create_dashboard(df):
         create_job_categories_tab(df_filtered)
     
     with tab4:
-        create_company_comparison_tab(df)
-    
-    with tab5:
         create_compensation_tab(df_filtered)
         
-    with tab6:
+    with tab5:
         create_job_details_tab(df_filtered)
 
 @handle_exceptions
@@ -1497,220 +1493,220 @@ def create_job_categories_tab(df):
     else:
         st.info("No job categories available for analysis")
 
-@handle_exceptions
-def create_company_comparison_tab(df):
-    """Create content for company comparison tab"""
-    st.markdown('<div class="subheader-style">Company Comparison</div>', unsafe_allow_html=True)
+# @handle_exceptions
+# def create_company_comparison_tab(df):
+#     """Create content for company comparison tab"""
+#     st.markdown('<div class="subheader-style">Company Comparison</div>', unsafe_allow_html=True)
     
-    # Check if multiple companies exist in the dataset
-    if 'Company' in df.columns and df['Company'].nunique() > 1:
-        # Select companies to compare
-        all_companies = sorted(df['Company'].unique().tolist())
-        selected_companies = st.multiselect(
-            "Select Companies to Compare", 
-            all_companies,
-            default=all_companies[:min(3, len(all_companies))]
-        )
+#     # Check if multiple companies exist in the dataset
+#     if 'Company' in df.columns and df['Company'].nunique() > 1:
+#         # Select companies to compare
+#         all_companies = sorted(df['Company'].unique().tolist())
+#         selected_companies = st.multiselect(
+#             "Select Companies to Compare", 
+#             all_companies,
+#             default=all_companies[:min(3, len(all_companies))]
+#         )
         
-        if selected_companies:
-            # Filter data for selected companies
-            df_compare = df[df['Company'].isin(selected_companies)]
+#         if selected_companies:
+#             # Filter data for selected companies
+#             df_compare = df[df['Company'].isin(selected_companies)]
             
-            # Categories comparison
-            st.markdown('<div class="subheader-style">Job Categories by Company</div>', unsafe_allow_html=True)
+#             # Categories comparison
+#             st.markdown('<div class="subheader-style">Job Categories by Company</div>', unsafe_allow_html=True)
             
-            # Create a dataframe for category comparison
-            cat_counts = df_compare.groupby(['Company', 'Job_Category']).size().reset_index(name='Count')
+#             # Create a dataframe for category comparison
+#             cat_counts = df_compare.groupby(['Company', 'Job_Category']).size().reset_index(name='Count')
             
-            # Create grouped bar chart
-            fig_cats = px.bar(
-                cat_counts,
-                x='Job_Category',
-                y='Count',
-                color='Company',
-                title="Job Categories Comparison",
-                barmode='group',
-                text='Count'
-            )
-            fig_cats.update_traces(textposition='outside')
-            fig_cats.update_layout(
-                xaxis_title="Job Category", 
-                yaxis_title="Number of Jobs",
-                legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
-            )
-            st.plotly_chart(fig_cats, use_container_width=True)
+#             # Create grouped bar chart
+#             fig_cats = px.bar(
+#                 cat_counts,
+#                 x='Job_Category',
+#                 y='Count',
+#                 color='Company',
+#                 title="Job Categories Comparison",
+#                 barmode='group',
+#                 text='Count'
+#             )
+#             fig_cats.update_traces(textposition='outside')
+#             fig_cats.update_layout(
+#                 xaxis_title="Job Category", 
+#                 yaxis_title="Number of Jobs",
+#                 legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
+#             )
+#             st.plotly_chart(fig_cats, use_container_width=True)
             
-            # Experience requirements comparison
-            st.markdown('<div class="subheader-style">Experience Requirements by Company</div>', unsafe_allow_html=True)
+#             # Experience requirements comparison
+#             st.markdown('<div class="subheader-style">Experience Requirements by Company</div>', unsafe_allow_html=True)
             
-            # Create a dataframe for experience comparison
-            exp_counts = df_compare.groupby(['Company', 'Experience_Range']).size().reset_index(name='Count')
+#             # Create a dataframe for experience comparison
+#             exp_counts = df_compare.groupby(['Company', 'Experience_Range']).size().reset_index(name='Count')
             
-            # Sort by experience level
-            order = [
-                "Entry Level (0-1 years)", 
-                "Junior (1-3 years)", 
-                "Mid-Level (3-5 years)",
-                "Senior (5-8 years)", 
-                "Expert (8+ years)",
-                "Not Specified"
-            ]
-            exp_counts['Experience_Range'] = pd.Categorical(
-                exp_counts['Experience_Range'], 
-                categories=order, 
-                ordered=True
-            )
-            exp_counts = exp_counts.sort_values('Experience_Range')
+#             # Sort by experience level
+#             order = [
+#                 "Entry Level (0-1 years)", 
+#                 "Junior (1-3 years)", 
+#                 "Mid-Level (3-5 years)",
+#                 "Senior (5-8 years)", 
+#                 "Expert (8+ years)",
+#                 "Not Specified"
+#             ]
+#             exp_counts['Experience_Range'] = pd.Categorical(
+#                 exp_counts['Experience_Range'], 
+#                 categories=order, 
+#                 ordered=True
+#             )
+#             exp_counts = exp_counts.sort_values('Experience_Range')
             
-            # Create grouped bar chart
-            fig_exp = px.bar(
-                exp_counts,
-                x='Experience_Range',
-                y='Count',
-                color='Company',
-                title="Experience Requirements Comparison",
-                barmode='group',
-                text='Count'
-            )
-            fig_exp.update_traces(textposition='outside')
-            fig_exp.update_layout(
-                xaxis_title="Experience Level", 
-                yaxis_title="Number of Jobs",
-                xaxis={'categoryorder': 'array', 'categoryarray': order},
-                legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
-            )
-            st.plotly_chart(fig_exp, use_container_width=True)
+#             # Create grouped bar chart
+#             fig_exp = px.bar(
+#                 exp_counts,
+#                 x='Experience_Range',
+#                 y='Count',
+#                 color='Company',
+#                 title="Experience Requirements Comparison",
+#                 barmode='group',
+#                 text='Count'
+#             )
+#             fig_exp.update_traces(textposition='outside')
+#             fig_exp.update_layout(
+#                 xaxis_title="Experience Level", 
+#                 yaxis_title="Number of Jobs",
+#                 xaxis={'categoryorder': 'array', 'categoryarray': order},
+#                 legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
+#             )
+#             st.plotly_chart(fig_exp, use_container_width=True)
             
-            # Work mode comparison
-            st.markdown('<div class="subheader-style">Work Mode by Company</div>', unsafe_allow_html=True)
+#             # Work mode comparison
+#             st.markdown('<div class="subheader-style">Work Mode by Company</div>', unsafe_allow_html=True)
             
-            # Create a dataframe for work mode comparison
-            work_counts = df_compare.groupby(['Company', 'Work_Mode']).size().reset_index(name='Count')
+#             # Create a dataframe for work mode comparison
+#             work_counts = df_compare.groupby(['Company', 'Work_Mode']).size().reset_index(name='Count')
             
-            # Create grouped bar chart
-            fig_work = px.bar(
-                work_counts,
-                x='Work_Mode',
-                y='Count',
-                color='Company',
-                title="Remote vs. Onsite Comparison",
-                barmode='group',
-                text='Count'
-            )
-            fig_work.update_traces(textposition='outside')
-            fig_work.update_layout(
-                xaxis_title="Work Mode", 
-                yaxis_title="Number of Jobs",
-                legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
-            )
-            st.plotly_chart(fig_work, use_container_width=True)
+#             # Create grouped bar chart
+#             fig_work = px.bar(
+#                 work_counts,
+#                 x='Work_Mode',
+#                 y='Count',
+#                 color='Company',
+#                 title="Remote vs. Onsite Comparison",
+#                 barmode='group',
+#                 text='Count'
+#             )
+#             fig_work.update_traces(textposition='outside')
+#             fig_work.update_layout(
+#                 xaxis_title="Work Mode", 
+#                 yaxis_title="Number of Jobs",
+#                 legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
+#             )
+#             st.plotly_chart(fig_work, use_container_width=True)
             
-            # Education requirements comparison
-            st.markdown('<div class="subheader-style">Education Requirements by Company</div>', unsafe_allow_html=True)
+#             # Education requirements comparison
+#             st.markdown('<div class="subheader-style">Education Requirements by Company</div>', unsafe_allow_html=True)
             
-            # Create a dataframe for education comparison
-            edu_counts = df_compare.groupby(['Company', 'Education_Required']).size().reset_index(name='Count')
+#             # Create a dataframe for education comparison
+#             edu_counts = df_compare.groupby(['Company', 'Education_Required']).size().reset_index(name='Count')
             
-            # Create grouped bar chart
-            fig_edu = px.bar(
-                edu_counts,
-                x='Education_Required',
-                y='Count',
-                color='Company',
-                title="Education Requirements Comparison",
-                barmode='group',
-                text='Count'
-            )
-            fig_edu.update_traces(textposition='outside')
-            fig_edu.update_layout(
-                xaxis_title="Education Required", 
-                yaxis_title="Number of Jobs",
-                legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
-            )
-            st.plotly_chart(fig_edu, use_container_width=True)
+#             # Create grouped bar chart
+#             fig_edu = px.bar(
+#                 edu_counts,
+#                 x='Education_Required',
+#                 y='Count',
+#                 color='Company',
+#                 title="Education Requirements Comparison",
+#                 barmode='group',
+#                 text='Count'
+#             )
+#             fig_edu.update_traces(textposition='outside')
+#             fig_edu.update_layout(
+#                 xaxis_title="Education Required", 
+#                 yaxis_title="Number of Jobs",
+#                 legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5)
+#             )
+#             st.plotly_chart(fig_edu, use_container_width=True)
             
-            # Skills comparison
-            st.markdown('<div class="subheader-style">Top 5 Skills by Company</div>', unsafe_allow_html=True)
+#             # Skills comparison
+#             st.markdown('<div class="subheader-style">Top 5 Skills by Company</div>', unsafe_allow_html=True)
             
-            # Get top 5 skills for each company
-            company_skills = {}
-            for company in selected_companies:
-                df_company = df[df['Company'] == company]
-                skills = [skill for skills_list in df_company['Skills'] for skill in skills_list]
-                top_skills = Counter(skills).most_common(5)
-                company_skills[company] = top_skills
+#             # Get top 5 skills for each company
+#             company_skills = {}
+#             for company in selected_companies:
+#                 df_company = df[df['Company'] == company]
+#                 skills = [skill for skills_list in df_company['Skills'] for skill in skills_list]
+#                 top_skills = Counter(skills).most_common(5)
+#                 company_skills[company] = top_skills
             
-            # Create a table for comparison
-            skills_data = []
-            for company, top_skills in company_skills.items():
-                for i, (skill, count) in enumerate(top_skills):
-                    skills_data.append({
-                        'Company': company,
-                        'Rank': i + 1,
-                        'Skill': skill,
-                        'Count': count
-                    })
+#             # Create a table for comparison
+#             skills_data = []
+#             for company, top_skills in company_skills.items():
+#                 for i, (skill, count) in enumerate(top_skills):
+#                     skills_data.append({
+#                         'Company': company,
+#                         'Rank': i + 1,
+#                         'Skill': skill,
+#                         'Count': count
+#                     })
             
-            skills_df = pd.DataFrame(skills_data)
+#             skills_df = pd.DataFrame(skills_data)
             
-            # Pivot for better visualization
-            skills_pivot = skills_df.pivot(index='Rank', columns='Company', values='Skill')
-            st.dataframe(skills_pivot, use_container_width=True)
+#             # Pivot for better visualization
+#             skills_pivot = skills_df.pivot(index='Rank', columns='Company', values='Skill')
+#             st.dataframe(skills_pivot, use_container_width=True)
             
-            # Heatmap of skills across companies
-            st.markdown('<div class="subheader-style">Skills Distribution Heatmap</div>', unsafe_allow_html=True)
+#             # Heatmap of skills across companies
+#             st.markdown('<div class="subheader-style">Skills Distribution Heatmap</div>', unsafe_allow_html=True)
             
-            # Get common skills across companies
-            all_skills = set()
-            for company in selected_companies:
-                df_company = df[df['Company'] == company]
-                company_skills = set([skill for skills_list in df_company['Skills'] for skill in skills_list])
-                all_skills.update(company_skills)
+#             # Get common skills across companies
+#             all_skills = set()
+#             for company in selected_companies:
+#                 df_company = df[df['Company'] == company]
+#                 company_skills = set([skill for skills_list in df_company['Skills'] for skill in skills_list])
+#                 all_skills.update(company_skills)
             
-            # Create matrix of skill counts by company
-            skill_matrix = []
-            for skill in all_skills:
-                row = {'Skill': skill}
-                for company in selected_companies:
-                    df_company = df[df['Company'] == company]
-                    count = sum(1 for skills_list in df_company['Skills'] if skill in skills_list)
-                    row[company] = count
-                skill_matrix.append(row)
+#             # Create matrix of skill counts by company
+#             skill_matrix = []
+#             for skill in all_skills:
+#                 row = {'Skill': skill}
+#                 for company in selected_companies:
+#                     df_company = df[df['Company'] == company]
+#                     count = sum(1 for skills_list in df_company['Skills'] if skill in skills_list)
+#                     row[company] = count
+#                 skill_matrix.append(row)
             
-            skill_matrix_df = pd.DataFrame(skill_matrix)
+#             skill_matrix_df = pd.DataFrame(skill_matrix)
             
-            # Sort by most common skills
-            skill_matrix_df['Total'] = skill_matrix_df[selected_companies].sum(axis=1)
-            skill_matrix_df = skill_matrix_df.sort_values('Total', ascending=False).head(20)  # Top 20 skills
-            skill_matrix_df = skill_matrix_df.drop(columns=['Total'])
+#             # Sort by most common skills
+#             skill_matrix_df['Total'] = skill_matrix_df[selected_companies].sum(axis=1)
+#             skill_matrix_df = skill_matrix_df.sort_values('Total', ascending=False).head(20)  # Top 20 skills
+#             skill_matrix_df = skill_matrix_df.drop(columns=['Total'])
             
-            # Melt for heatmap format
-            skill_heatmap_df = skill_matrix_df.melt(
-                id_vars=['Skill'], 
-                value_vars=selected_companies,
-                var_name='Company', 
-                value_name='Count'
-            )
+#             # Melt for heatmap format
+#             skill_heatmap_df = skill_matrix_df.melt(
+#                 id_vars=['Skill'], 
+#                 value_vars=selected_companies,
+#                 var_name='Company', 
+#                 value_name='Count'
+#             )
             
-            # Create heatmap
-            fig_heatmap = px.density_heatmap(
-                skill_heatmap_df,
-                x='Company',
-                y='Skill',
-                z='Count',
-                title="Skill Distribution Across Companies",
-                color_continuous_scale='Viridis'
-            )
-            fig_heatmap.update_layout(
-                xaxis_title="Company",
-                yaxis_title="Skill",
-                yaxis={'categoryorder': 'total ascending'}
-            )
-            st.plotly_chart(fig_heatmap, use_container_width=True)
-        else:
-            st.info("Please select at least one company to compare")
-    else:
-        st.info("Multiple company comparison requires data from more than one company")
+#             # Create heatmap
+#             fig_heatmap = px.density_heatmap(
+#                 skill_heatmap_df,
+#                 x='Company',
+#                 y='Skill',
+#                 z='Count',
+#                 title="Skill Distribution Across Companies",
+#                 color_continuous_scale='Viridis'
+#             )
+#             fig_heatmap.update_layout(
+#                 xaxis_title="Company",
+#                 yaxis_title="Skill",
+#                 yaxis={'categoryorder': 'total ascending'}
+#             )
+#             st.plotly_chart(fig_heatmap, use_container_width=True)
+#         else:
+#             st.info("Please select at least one company to compare")
+#     else:
+#         st.info("Multiple company comparison requires data from more than one company")
 
 @handle_exceptions
 def create_compensation_tab(df):
