@@ -217,7 +217,15 @@ def predict_skill_demand(df):
                     # Calculate acceleration (is growth accelerating?)
                     if len(monthly_counts) >= 3:
                         first_half_growth = (monthly_counts[len(monthly_counts)//2] - monthly_counts[0]) / first_count
-                        second_half_growth = (monthly_counts[-1] - monthly_counts[len(monthly_counts)//2]) / monthly_counts[len(monthly_counts)//2]
+                        if monthly_counts[len(monthly_counts)//2] > 0:
+                            second_half_growth = (monthly_counts[-1] - monthly_counts[len(monthly_counts)//2]) / monthly_counts[len(monthly_counts)//2]
+                        else:
+                            # If middle month has zero occurrences, use a different calculation
+                            # Either use a small constant value, or calculate growth differently
+                            if monthly_counts[-1] > 0:
+                                second_half_growth = 1.0  # Indicate some positive growth since we went from 0 to something
+                            else:
+                                second_half_growth = 0.0  # No growth if both values are 0
                         acceleration = second_half_growth - first_half_growth
                     else:
                         acceleration = 0
